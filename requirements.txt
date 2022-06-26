@@ -1,0 +1,17 @@
+greenlet==1.1.2
+grpcio==1.43.0
+grpcio-tools==1.43.0
+joblib==1.1.0
+numpy==1.22.2
+pandas==1.4.1
+protobuf==3.19.4
+pyodbc==4.0.32
+python-dateutil==2.8.2
+python-dotenv==0.19.2
+pytz==2021.3
+scikit-learn==1.0.2
+scipy==1.8.0
+six==1.16.0
+SQLAlchemy==1.4.31
+threadpoolctl==3.1.0
+psycopg2-binary==2.9.3
