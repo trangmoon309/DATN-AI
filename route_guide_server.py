@@ -128,7 +128,7 @@ def InitDb(self):
 def getUserRatingMatrix(engine):
   with engine.connect() as connection:
     #result = connection.execute(text('Select "userId"::text, "propertyId"::text, "rating" from user_rating'))
-    result = connection.execute(text('SELECT "transaction"."UserTransactions"."UserId", "transaction"."UserTransactionVehicles"."VehicleId"  from "transaction"."UserTransactionVehicles" inner join "transaction"."UserTransactions" on "transaction"."UserTransactionVehicles"."UserTransactionId" = "transaction"."UserTransactions"."Id"'))
+    result = connection.execute(text('WITH r AS (SELECT * FROM "transaction"."UserTransactions"), ss AS (SELECT r.*, a.* FROM r INNER JOIN "transaction"."UserTransactionVehicles" a ON a."UserTransactionId" = r."Id"), sss AS (SELECT ss.*, b.* FROM ss INNER JOIN "vehicle"."VehicleProperties" b ON b."VehicleId" = ss."VehicleId") select sss."UserId"::text, sss."VehicleTypeDetailId"::text, sss."ReviewRideQuality" from sss'))
     test = [{column: value for column, value in rowproxy.items()} for rowproxy in result]
     df = pd.DataFrame(test)
     return df.values
