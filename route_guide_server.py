@@ -85,25 +85,25 @@ def InitDb(self):
 
     engineIS = create_engine("postgresql://"+self.user+":"+self.password+"@"+self.server+"/"+self.databaseIS+"")
     with engine.connect() as connection:
-        result = connection.execute(text('select "VehicleTypeDetails"."Id"::text, "VehicleTypes"."Name" from "vehicleType"."VehicleTypeDetails" inner join "vehicleType"."VehicleTypes" on "vehicleType"."VehicleTypeDetails"."VehicleTypeId" = "vehicleType"."VehicleTypes"."Id"'))        
-        
-        # prop.items(): [('Name', 'SUV'), ('Id', '3a04991c-1039-2e22-c883-f3e1cd75892c')]
+        result = connection.execute(text('WITH r AS (SELECT "vehicleType"."VehicleTypeDetails"."Id" as "VehicleDetailId", "vehicleType"."VehicleTypeDetails"."VehicleTypeId" FROM "vehicleType"."VehicleTypeDetails" where "vehicleType"."VehicleTypeDetails"."IsDeleted" = \'false\'), a AS (SELECT "vehicleType"."VehicleTypes"."Id", "vehicleType"."VehicleTypes"."Name" as "VehicleTypeName" FROM "vehicleType"."VehicleTypes" where "vehicleType"."VehicleTypes"."IsDeleted" = \'false\'), ss AS (SELECT r.*, a.* FROM r INNER JOIN a ON a."Id" = r."VehicleTypeId") select ss."VehicleDetailId"::text, ss."VehicleTypeName" from ss'))        
+        # prop.items(): [('VehicleTypeName', 'SUV'), ('VehicleDetailId', '3a04991c-1039-2e22-c883-f3e1cd75892c')]
         # '3a04991c-103d-4263-bbaf-e8aefcda490d': ['Compact']
         # '3a04991c-103e-bbeb-f20d-9b66b7746644': ['Pick-up Truck']
         # '3a04991c-103e-bfe3-9d09-b6a1a224caef': ['Crew Cab']
         props = {}
         for item in [{column: value for column, value in prop.items()} for prop in result]:
-         props.setdefault(item['Id'], []).append(item['Name'])
-        
+         props.setdefault(item['VehicleDetailId'], []).append(item['VehicleTypeName'])
+        propsList = list(props.items())
+        print(propsList)
     with engine.connect() as connection:
       tag = connection.execute(text('SELECT "VehicleTypes"."Id"::text, "VehicleTypes"."Name" FROM "vehicleType"."VehicleTypes"'))
-      categories = [{column: value for column, value in category.items()} for category in tag]
-      propsList = list(props.items())
+      types = [{column: value for column, value in category.items()} for category in tag]
+      
 
       # Create matrix to check and map each prop to category
       # ~ item propfile matrix
-      a = np.asarray(list(map((lambda x: mapData(x, categories)), propsList)))
-      numberOfItem = len(categories)
+      a = np.asarray(list(map((lambda x: mapData(x, types)), propsList)))
+      numberOfItem = len(types)
       
       X_train_counts = a[:, -(numberOfItem - 1):]
 
